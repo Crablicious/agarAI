@@ -1,5 +1,6 @@
 package controller;
 
+import java.awt.*;
 import java.awt.event.*;
 import view.*;
 import model.*;
@@ -12,7 +13,7 @@ import java.util.Collections;
 
 import javax.swing.*;
 
-class Pong {
+class Agar {
     public static void main(String[] args) {
         ControllerOptions opt = new ControllerOptions();
 
@@ -20,7 +21,7 @@ class Pong {
             opt.parse(arg);
         }
 
-        final PongController controller = new PongController(opt);
+        final AgarController controller = new AgarController(opt);
 
         controller.loop();
     }
@@ -28,13 +29,12 @@ class Pong {
 
 class ControllerOptions {
     private int framerate = 30;
-    private String leftPlayer = "Left Player";
-    private char leftPlayerUp = 'w';
-    private char leftPlayerDown = 's';
+    private String player = "Bengt";
+    private char playerEast = 'a';
+    private char playerWest = 'd';
+    private char playerNorth = 'w';
+    private char playerSouth = 's';
 
-    private String rightPlayer = "Right Player";
-    private char rightPlayerUp = 'i';
-    private char rightPlayerDown = 'k';
     public ControllerOptions parse(String opt) {
         try {
             String[] parts = opt.split("=");
@@ -45,27 +45,8 @@ class ControllerOptions {
                 case "--framerate":
                     this.framerate = new Integer(parts[1]);
                     break;
-                case "--leftPlayer":
-                    this.leftPlayer = parts[1];
-                    break;
-                case "--rightPlayer":
-                    this.rightPlayer = parts[1];
-                    break;
-                case "--leftPlayerUp":
-                    if (parts[1].length()>1) throw new RuntimeException("only one character as option!");
-                    this.leftPlayerUp = parts[1].charAt(0);
-                    break;
-                case "--leftPlayerDown":
-                    if (parts[1].length()>1) throw new RuntimeException("only one character as option!");
-                    this.leftPlayerDown = parts[1].charAt(0);
-                    break;
-                case "--rightPlayerUp":
-                    if (parts[1].length()>1) throw new RuntimeException("only one character as option!");
-                    this.rightPlayerUp = parts[1].charAt(0);
-                    break;
-                case "--rightPlayerDown":
-                    if (parts[1].length()>1) throw new RuntimeException("only one character as option!");
-                    this.rightPlayerDown = parts[1].charAt(0);
+                case "--player":
+                    this.player = parts[1];
                     break;
                 default:
                     System.err.println("Unrecognized option: \""+opt+"\"");
@@ -79,60 +60,50 @@ class ControllerOptions {
     }
 
     private void printUsage() {
-        System.out.println("SWING-PONG -- a pong implementation for the IOOPM course.");
+        System.out.println("agarAI, an implementation of agar with bots");
         System.out.println("--help                   : show this help");
         System.out.println("--framerate=<int>        : set the target framerate (and game speed)");
-        System.out.println("--leftPlayer=<name>      : set the left player name");
-        System.out.println("--rightPlayer=<name>     : set the right player name");
-        System.out.println("--leftPlayerUp=<char>    : set the left player up button (default: 'w')");
-        System.out.println("--leftPlayerDown=<char>  : set the left player down button (default: 's')");
-        System.out.println("--rightPlayerUp=<char>   : set the right player up button (default: 'w')");
-        System.out.println("--rightPlayerDown=<char> : set the right player down button (default: 's')");
+        System.out.println("--player=<name>          : set the player's name");
         System.out.println();
     }
 
     public int getFramerate() {
         return framerate;
     }
-
-    public char getLeftPlayerUp() {
-        return this.leftPlayerUp;
+    public String getPlayer() {
+        return player;
     }
-    public char getLeftPlayerDown() {
-        return this.leftPlayerDown;
+    public char getPlayerEast() {
+        return playerEast;
     }
-    public char getRightPlayerUp() {
-        return this.rightPlayerUp;
+    public char getPlayerWest() {
+        return playerWest;
     }
-    public char getRightPlayerDown() {
-        return this.rightPlayerDown;
+    public char getPlayerNorth() {
+        return playerNorth;
     }
-
-    public String getLeftPlayer() {
-        return leftPlayer;
-    }
-    public String getRightPlayer() {
-        return rightPlayer;
+    public char getPlayerSouth() {
+        return playerSouth;
     }
 }
 
-class PongController implements KeyListener {
+class AgarController implements KeyListener {
     private final ControllerOptions options;
     private final Map<Character, Input> inputMap;
     private final Set<Input> input = new HashSet<Input>();
     private final AgarView view;
     private final AgarModel model;
 
-    public PongController(final ControllerOptions opt) {
+    public AgarController(final ControllerOptions opt) {
         this.options = opt;
-        this.model = new AgarModel(options.getLeftPlayer(), options.getRightPlayer());
+        this.model = new AgarModel(opt.getFramerate());
         this.view = new AgarView(model);
 
         this.inputMap = Collections.unmodifiableMap(new HashMap<Character,Input>() {{
-            put(options.getLeftPlayerUp(), new Input(BarKey.LEFT, Input.Dir.UP));
-            put(options.getLeftPlayerDown(), new Input(BarKey.LEFT, Input.Dir.DOWN));
-            put(options.getRightPlayerUp(), new Input(BarKey.RIGHT, Input.Dir.UP));
-            put(options.getRightPlayerDown(), new Input(BarKey.RIGHT, Input.Dir.DOWN));
+            put(options.getPlayerWest(), new Input(Input.Dir.WEST));
+            put(options.getPlayerEast(), new Input(Input.Dir.EAST));
+            put(options.getPlayerNorth(), new Input(Input.Dir.NORTH));
+            put(options.getPlayerSouth(), new Input(Input.Dir.SOUTH));
         }});
     }
 
@@ -164,7 +135,7 @@ class PongController implements KeyListener {
         for (;;) {
             try {
                 long last_compute = System.currentTimeMillis();
-                model.compute(input, delta, options.getFramerate());
+                model.compute(input, delta);
                 view.update();
 
                 delta = System.currentTimeMillis() - last_compute;

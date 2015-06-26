@@ -3,6 +3,7 @@ package model;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.Set;
 //implement AgarModel
 
 public class AgarModel {
@@ -12,8 +13,8 @@ public class AgarModel {
     private Dimension field;
     private int framerate;
 
-    public AgarModel(Dimension field, int framerate) {
-        this.field = field;
+    public AgarModel(int framerate) {
+        this.field = new Dimension(800, 600);
         this.framerate = framerate;
         baseBlobs = new ArrayList<BaseBlob>();
         advBlobs = new ArrayList<AdvBlob>();
@@ -21,10 +22,10 @@ public class AgarModel {
         spawnAvatar();
     }
 
-    public void compute(Input input, long delta_t) {
+    public void compute(Set<Input> input, long delta_t) {
         avatar.updatePosition(input, delta_t, framerate, field);
         for(AdvBlob blob: advBlobs) {
-            Input inputAI = null;
+            Set<Input> inputAI = null;
             blob.updatePosition(inputAI,  delta_t, framerate, field);
             findCollision(blob);
         }

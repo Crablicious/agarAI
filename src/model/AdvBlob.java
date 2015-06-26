@@ -1,8 +1,9 @@
 package model;
 
 import java.awt.*;
+import java.util.Set;
 
-
+//TODO: Add ability to split.
 public class AdvBlob extends BaseBlob {
 	private double maxSpeed;
 	private double westSpeed;
@@ -23,7 +24,7 @@ public class AdvBlob extends BaseBlob {
         maxSpeed = 10 - getArea()/300;
     }
 
-	public void updateSpeed(Input input) {
+	public void updateSpeed(Set<Input> input) {
         calculateMaxSpeed();
         //TODO: Might need some acceleration instead of constant setting.
         if (input.contains(Input.Dir.EAST)){
@@ -58,7 +59,7 @@ public class AdvBlob extends BaseBlob {
         }
     }
 
-    public void updatePosition(Input input, long delta_t, int framerate, Dimension field) {
+    public void updatePosition(Set<Input> input, long delta_t, int framerate, Dimension field) {
         //Retardation
         eastSpeed = eastSpeed - (eastSpeed*3/4) * delta_t/(1/framerate);
         westSpeed = westSpeed - (westSpeed*3/4) * delta_t/(1/framerate);
