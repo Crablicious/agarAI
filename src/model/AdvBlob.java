@@ -25,7 +25,7 @@ public class AdvBlob extends BaseBlob {
 
 	public void updateSpeed(Input input) {
         calculateMaxSpeed();
-
+        //TODO: Might need some acceleration instead of constant setting.
         if (input.contains(Input.Dir.EAST)){
             eastSpeed = maxSpeed;
         }
@@ -64,8 +64,15 @@ public class AdvBlob extends BaseBlob {
         westSpeed = westSpeed - (westSpeed*3/4) * delta_t/(1/framerate);
         northSpeed = northSpeed - (northSpeed*3/4) * delta_t/(1/framerate);
         southSpeed = southSpeed - (southSpeed*3/4) * delta_t/(1/framerate);
-
-        updateSpeed(input);
+        if (input != null) updateSpeed(input);
         move(delta_t/(1/framerate), field);
+    }
+
+    public boolean eatBlob(BaseBlob toBeEaten){
+        if (this.getArea()/toBeEaten.getArea() > 4/3){
+            this.radius = Math.sqrt((toBeEaten.getArea()+this.getArea())/Math.PI);
+            return true;
+        }
+        return false;
     }
 }
