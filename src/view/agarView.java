@@ -8,17 +8,13 @@ import java.util.Map;
 import java.util.HashMap;
 
 import model.AgarModel;
-import model.BarKey;
 
 public class AgarView {
     private final int WIDTH_PXL;
     private final int HEIGHT_PXL;
 
     private final AgarModel model;
-    
-    //TODO: Update this
-    final Map<BarKey,Bar> bars;
-    final Map<BarKey,JLabel> scorelabels;
+
     final JLabel msglabel;
     final Ball ball;
 
@@ -54,11 +50,6 @@ public class AgarView {
 
         this.ball = new Ball();
 
-        this.bars = Collections.unmodifiableMap(new HashMap<BarKey,Bar>() {{
-                    put(BarKey.LEFT, new Bar(0));
-                    put(BarKey.RIGHT, new Bar(WIDTH_PXL));
-                }});
-        final Map<BarKey,JLabel> scorelabels = new HashMap<BarKey,JLabel>();
 
         // initialize the graphics stuff:
         final JFrame frame = new JFrame("SwingAgar");
@@ -90,9 +81,9 @@ public class AgarView {
                     msglabel.setOpaque(true);
                     msglabel.setHorizontalAlignment(SwingConstants.CENTER);
 
-                    for (BarKey k : BarKey.values()) {
+                    /*for (BarKey k : BarKey.values()) {
                         scorelabels.put(k, makeScoreLabel(k));
-                    }
+                    }*/
 
                     frame.getContentPane().setPreferredSize(new Dimension(WIDTH_PXL, HEIGHT_PXL));
                     
@@ -100,9 +91,10 @@ public class AgarView {
                         frame.getContentPane().add(bar.getJComponent());
                     }
                     frame.getContentPane().add(ball.getJComponent());
-                    for (JLabel scorelabel : scorelabels.values()) {
+
+                    /*for (JLabel scorelabel : scorelabels.values()) {
                         frame.getContentPane().add(scorelabel);
-                    }
+                    }*/
                     frame.getContentPane().add(msglabel);
                     frame.getContentPane().add(centerline);
                     frame.getContentPane().add(background);
@@ -116,7 +108,6 @@ public class AgarView {
         }
         this.frame = frame;
         this.msglabel = msglabel;
-        this.scorelabels = scorelabels;
     }
 
     public void show() {
@@ -143,18 +134,18 @@ public class AgarView {
     public void update() {
         SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
-                    bars.get(BarKey.LEFT).update(scaleYPos(model.getBarPos(BarKey.LEFT)), scaleYPos(model.getBarHeight(BarKey.LEFT)));
-                    bars.get(BarKey.RIGHT).update(scaleYPos(model.getBarPos(BarKey.RIGHT)), scaleYPos(model.getBarHeight(BarKey.RIGHT)));
+                    //bars.get(BarKey.LEFT).update((model.getBarPos(BarKey.LEFT)), scaleYPos(model.getBarHeight(BarKey.LEFT)));
+                    //bars.get(BarKey.RIGHT).update(scaleYPos(model.getBarPos(BarKey.RIGHT)), scaleYPos(model.getBarHeight(BarKey.RIGHT)));
                     ball.update(scalePoint(model.getBallPos()));
-                    if (model.getMessage() == null) {
+                    /*if (model.getMessage() == null) {
                         msglabel.setVisible(false);
                     } else {
                         msglabel.setVisible(true);
                         msglabel.setText(model.getMessage());
-                    }
-                    for (BarKey k : BarKey.values()) {
+                    }*/
+                    /*for (BarKey k : BarKey.values()) {
                         scorelabels.get(k).setText(model.getScore(k));
-                    }
+                    }*/
                     Toolkit.getDefaultToolkit().sync(); //TODO: Can we fix this better?
                 }
             });

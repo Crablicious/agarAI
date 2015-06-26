@@ -1,0 +1,8 @@
+Things to keep track of in model:
+	- All stationary eadible blobs, needs coordinates, size, value gained from eating it, (color).
+	- All moving blobs, needs: speed, ability to move, coordinates, size, value gained from eating it, (color).
+	- A way to compare if eadible is needed.
+
+Should be able to make movable blobs inherit from stationary.
+
+When feeding, the blob gains the eaten blob's area.
