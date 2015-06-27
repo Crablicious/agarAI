@@ -17,12 +17,12 @@ public class AdvBlob extends BaseBlob {
 	}
 
     public void calculateMaxSpeed() {
-        maxSpeed = 30; //TODO: daw- getArea()/300;
+        maxSpeed = 10 - 0.001*getArea();
     }
 
 	public void updateSpeed(Set<Input> input, double frametime) {
         calculateMaxSpeed();
-        //TODO: Might need some acceleration instead of constant setting.
+
         //(0,0) top left corner
         if (input.contains(new Input(Input.Dir.EAST))){
             xSpeed += maxSpeed/10 * frametime;
@@ -71,8 +71,6 @@ public class AdvBlob extends BaseBlob {
         ySpeed = ySpeed*3/4*frametime;
         updateSpeed(input, frametime);
         move(frametime, field);
-        //System.out.println(xSpeed);
-        //System.out.println(ySpeed);
     }
 
     public boolean eatBlob(BaseBlob toBeEaten){
@@ -81,5 +79,9 @@ public class AdvBlob extends BaseBlob {
             return true;
         }
         return false;
+    }
+
+    public double getMaxSpeed() {
+        return maxSpeed;
     }
 }

@@ -58,27 +58,19 @@ public class AgarModel {
     }
 
     private void spawnBaseBlobs () {
-        //TODO: Maybe needs to space them out so they won't spawn at the same place.
-        // Density of base blobs is 50 pixels per base blob
-        int maxBaseBlobs = 10;//TODO: (int)(field.getHeight() * field.getWidth() / 50);
+        int maxBaseBlobs = (int)(field.getHeight() * field.getWidth() / 10000);
         Random rand = new Random();
-        int radius = 10;
+        int radius = 5;
         for (int i = 0; maxBaseBlobs > i; i++) {
             //Compensated to stay within field boundary.
-            int y = rand.nextInt((int)field.getHeight()+1-2*radius) + radius;
-            int x = rand.nextInt((int)field.getWidth()+1-2*radius) + radius;
-            BaseBlob blob = new BaseBlob(new Point(x,y), radius);
+            BaseBlob blob = new BaseBlob(generateSpawnPoint(radius), radius);
             baseBlobs.add(blob);
         }
     }
 
     private void spawnAvatar () {
-        int radius = 20;
-        Random rand = new Random();
-        int y = rand.nextInt((int)field.getHeight()+1-2*radius) + radius;
-        int x = rand.nextInt((int)field.getWidth()+1-2*radius) + radius;
-
-        avatar = new AdvBlob(new Point(x,y), radius);
+        int radius = 10;
+        avatar = new AdvBlob(generateSpawnPoint(radius), radius);
     }
 
     public Dimension getFieldSize() {
@@ -91,5 +83,41 @@ public class AgarModel {
         result.addAll(advBlobs);
         result.add(avatar);
         return result;
+    }
+
+    private Point generateSpawnPoint(int radius) {
+        Random rand = new Random();
+        int testY;
+        int testX;
+        do {
+            testY = rand.nextInt((int)field.getHeight()+1-2*radius) + radius;
+        } while (isTooCloseY(testY, radius));
+
+        do {
+            testX = rand.nextInt((int)field.getWidth()+1-2*radius) + radius;
+        } while (isTooCloseX(testX, radius));
+        //System.out.println(new Point(testX, testY)); //TODO: This sucks
+        return new Point(testX, testY);
+    }
+
+
+    private boolean isTooCloseY (int yCoord, int radius) {
+        for (BaseBlob blob : circlesToDraw()) {
+            if (blob == null) return false;
+            if (!(Math.abs(yCoord - blob.getBlobCenterPoint().getY()) >= radius + blob.getRadius()+10)) return false;
+        }
+        return true;
+    }
+
+    private boolean isTooCloseX (int xCoord, int radius) {
+        for (BaseBlob blob : circlesToDraw()) {
+            if (blob == null) return false;
+            if (!(Math.abs(xCoord - blob.getBlobCenterPoint().getX()) >= radius + blob.getRadius()+10)) return false;
+        }
+        return true;
+    }
+
+    public String getMessage() {
+        return Double.toString(avatar.getMaxSpeed());
     }
 }

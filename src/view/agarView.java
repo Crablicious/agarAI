@@ -18,7 +18,7 @@ public class AgarView {
     private final int HEIGHT_PXL;
 
     private final AgarModel model;
-
+    final JLabel msgLabel;
     ArrayList<Ball> balls;
     final JFrame frame;
 
@@ -33,9 +33,11 @@ public class AgarView {
 
         // initialize the graphics stuff:
         final JFrame frame = new JFrame("SwingAgar");
+        final JLabel msgLabel = new JLabel("Messages");
         try {
         SwingUtilities.invokeAndWait(new Runnable() {
                 public void run() {
+                    final int MSG_HEIGHT = 30;
                     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                     
                     frame.setLayout(null);
@@ -45,6 +47,14 @@ public class AgarView {
                     background.setBorder(BorderFactory.createLineBorder(Color.WHITE));
                     background.setBounds(0, 0, WIDTH_PXL, HEIGHT_PXL);
 
+                    msgLabel.setPreferredSize(new Dimension(WIDTH_PXL, MSG_HEIGHT));
+                    msgLabel.setBounds(1, 10, WIDTH_PXL - 20, MSG_HEIGHT);
+                    msgLabel.setForeground(Color.yellow);
+                    msgLabel.setBackground(Color.BLACK);
+                    msgLabel.setOpaque(false);
+                    msgLabel.setHorizontalAlignment(SwingConstants.CENTER);
+
+                    frame.getContentPane().add(msgLabel);
                     frame.getContentPane().setPreferredSize(new Dimension(WIDTH_PXL, HEIGHT_PXL));
 
 
@@ -64,6 +74,7 @@ public class AgarView {
             System.exit(1);
         }
         this.frame = frame;
+        this.msgLabel = msgLabel;
     }
 
     public void show() {
@@ -90,7 +101,12 @@ public class AgarView {
     public void update() {
         SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
-
+                    if (model.getMessage() == null) {
+                        msgLabel.setVisible(false);
+                    } else {
+                        msgLabel.setVisible(true);
+                        msgLabel.setText(model.getMessage());
+                    }
                     for (int i = 0; balls.size() > i; i++) {
                         if (balls.get(i).myBlob != null) {
                             if (model.circlesToDraw().contains(balls.get(i).myBlob)) {
