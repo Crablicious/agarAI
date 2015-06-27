@@ -14,7 +14,7 @@ public class AgarModel {
     private int framerate;
 
     public AgarModel(int framerate) {
-        this.field = new Dimension(800, 600);
+        this.field = new Dimension(1024, 768);
         this.framerate = framerate;
         baseBlobs = new ArrayList<BaseBlob>();
         advBlobs = new ArrayList<AdvBlob>();
@@ -34,20 +34,33 @@ public class AgarModel {
 
     private void findCollision (AdvBlob blob) {
         for (AdvBlob iterABlob: advBlobs) {
-            if (blob.collides(iterABlob)) blob.eatBlob(iterABlob);
+            if (blob.collides(iterABlob)) {
+                if (blob.eatBlob(iterABlob)) {
+                    advBlobs.remove(iterABlob);
+                }
+            }
         }
 
         for (BaseBlob iterBBlob: baseBlobs){
-            if (blob.collides(iterBBlob)) blob.eatBlob(iterBBlob);
+            if (blob.collides(iterBBlob)) {
+                if (blob.eatBlob(iterBBlob)) {
+                    baseBlobs.remove(iterBBlob);
+                }
+            }
         }
 
-        if (blob.collides(avatar)) blob.eatBlob(avatar);
+        if (blob.collides(avatar)) {
+            if (blob.eatBlob(avatar)) {
+                //TODO: eat avatar
+            }
+
+        }
     }
 
     private void spawnBaseBlobs () {
         //TODO: Maybe needs to space them out so they won't spawn at the same place.
         // Density of base blobs is 50 pixels per base blob
-        int maxBaseBlobs = 1;//TODO: (int)(field.getHeight() * field.getWidth() / 50);
+        int maxBaseBlobs = 10;//TODO: (int)(field.getHeight() * field.getWidth() / 50);
         Random rand = new Random();
         int radius = 10;
         for (int i = 0; maxBaseBlobs > i; i++) {
