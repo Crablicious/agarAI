@@ -3,11 +3,14 @@ package view;
 import javax.swing.*;
 import java.awt.*;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
 import java.util.HashMap;
 
 import model.AgarModel;
+import model.BaseBlob;
+import sun.print.BackgroundServiceLookup;
 
 public class AgarView {
     private final int WIDTH_PXL;
@@ -15,9 +18,8 @@ public class AgarView {
 
     private final AgarModel model;
 
-    final JLabel msglabel;
-    final Ball ball;
-
+    //final Ball ball;
+    ArrayList<Ball> balls;
     final JFrame frame;
     
     /*
@@ -48,55 +50,33 @@ public class AgarView {
         WIDTH_PXL = 600;
         HEIGHT_PXL = WIDTH_PXL*((int)model.getFieldSize().getHeight())/((int)model.getFieldSize().getWidth());
 
-        this.ball = new Ball();
-
+        //this.ball = new Ball();
+        this.balls = new ArrayList<Ball>();
 
         // initialize the graphics stuff:
         final JFrame frame = new JFrame("SwingAgar");
-        final JLabel msglabel = new JLabel("Messages");
         try {
         SwingUtilities.invokeAndWait(new Runnable() {
                 public void run() {
-                    final int MSG_HEIGHT = 30;
                     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                     
                     frame.setLayout(null);
                     JLabel background = new JLabel("");
-                    background.setBackground(Color.WHITE);
+                    background.setBackground(Color.BLACK);
                     background.setOpaque(true);
                     background.setBorder(BorderFactory.createLineBorder(Color.WHITE));
-                    background.setBounds(0,0,WIDTH_PXL,HEIGHT_PXL);
-
-                    JLabel centerline = new JLabel("");
-                    final int CENTERLINE_WIDTH = 5;
-                    centerline.setBackground(Color.WHITE);
-                    centerline.setOpaque(true);
-                    centerline.setBounds(WIDTH_PXL/2-CENTERLINE_WIDTH/2,0,
-                                         CENTERLINE_WIDTH, HEIGHT_PXL);
-
-                    msglabel.setPreferredSize(new Dimension(WIDTH_PXL, MSG_HEIGHT));
-                    msglabel.setBounds(1,10, WIDTH_PXL-20, MSG_HEIGHT);
-                    msglabel.setForeground(Color.yellow); //TODO: Why does this not work, but yellow does?
-                    msglabel.setBackground(Color.BLACK);
-                    msglabel.setOpaque(true);
-                    msglabel.setHorizontalAlignment(SwingConstants.CENTER);
-
-                    /*for (BarKey k : BarKey.values()) {
-                        scorelabels.put(k, makeScoreLabel(k));
-                    }*/
+                    background.setBounds(0, 0, WIDTH_PXL, HEIGHT_PXL);
 
                     frame.getContentPane().setPreferredSize(new Dimension(WIDTH_PXL, HEIGHT_PXL));
-                    
-                    for (Bar bar : bars.values()) {
-                        frame.getContentPane().add(bar.getJComponent());
-                    }
-                    frame.getContentPane().add(ball.getJComponent());
 
-                    /*for (JLabel scorelabel : scorelabels.values()) {
-                        frame.getContentPane().add(scorelabel);
-                    }*/
-                    frame.getContentPane().add(msglabel);
-                    frame.getContentPane().add(centerline);
+
+
+                    for (BaseBlob blob : model.circlesToDraw()) {
+                        Ball newBall = new Ball(blob);
+                        balls.add(newBall);
+                        frame.getContentPane().add(newBall.getJComponent());
+                    }
+
                     frame.getContentPane().add(background);
                     
                     frame.pack();
@@ -107,7 +87,6 @@ public class AgarView {
             System.exit(1);
         }
         this.frame = frame;
-        this.msglabel = msglabel;
     }
 
     public void show() {
@@ -136,7 +115,16 @@ public class AgarView {
                 public void run() {
                     //bars.get(BarKey.LEFT).update((model.getBarPos(BarKey.LEFT)), scaleYPos(model.getBarHeight(BarKey.LEFT)));
                     //bars.get(BarKey.RIGHT).update(scaleYPos(model.getBarPos(BarKey.RIGHT)), scaleYPos(model.getBarHeight(BarKey.RIGHT)));
-                    ball.update(scalePoint(model.getBallPos()));
+                    for (Ball currBall : balls) {
+                        if (currBall.myBlob != null) {
+                            if (model.circlesToDraw().contains(currBall.myBlob)) {
+                                currBall.update(scalePoint(currBall.myBlob.getBlobCenterPoint()));
+                            }else {
+                                balls.remove(currBall);
+                            }
+                        }
+                    }
+                    //ball.update(scalePoint(model.getBallPos()));
                     /*if (model.getMessage() == null) {
                         msglabel.setVisible(false);
                     } else {
@@ -186,17 +174,17 @@ class Bar {
  * visualizing the ball
  */
 class Ball {
-    public static final int SIZE = 20;
-
+    BaseBlob myBlob;
     private final JComponent comp = new JLabel("");
 
-    public Ball() {
+    public Ball(BaseBlob myBlob) {
         this.comp.setBackground(Color.WHITE);
         this.comp.setOpaque(true);
+        this.myBlob = myBlob;
     }
 
     public void update(Point loc) {
-        this.comp.setBounds((int)loc.getX() - SIZE/2, (int)loc.getY() - SIZE/2, SIZE, SIZE);
+        this.comp.setBounds((int)loc.getX() - (int)myBlob.getRadius(), (int)loc.getY() - (int)myBlob.getRadius(), (int)myBlob.getRadius()*2, (int)myBlob.getRadius()*2);
     }
 
     public JComponent getJComponent() {

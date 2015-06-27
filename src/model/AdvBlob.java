@@ -21,22 +21,23 @@ public class AdvBlob extends BaseBlob {
 	}
 
     public void calculateMaxSpeed() {
-        maxSpeed = 10 - getArea()/300;
+        maxSpeed = 10; //TODO: daw- getArea()/300;
     }
 
 	public void updateSpeed(Set<Input> input) {
         calculateMaxSpeed();
         //TODO: Might need some acceleration instead of constant setting.
-        if (input.contains(Input.Dir.EAST)){
+
+        if (input.contains(new Input(Input.Dir.EAST))){
             eastSpeed = maxSpeed;
         }
-        if (input.contains(Input.Dir.WEST)){
+        if (input.contains(new Input(Input.Dir.WEST))){
             westSpeed = maxSpeed;
         }
-        if (input.contains(Input.Dir.NORTH)){
+        if (input.contains(new Input(Input.Dir.NORTH))){
             northSpeed = maxSpeed;
         }
-        if (input.contains(Input.Dir.SOUTH)){
+        if (input.contains(new Input(Input.Dir.SOUTH))){
             southSpeed = maxSpeed;
         }
 	}
@@ -61,12 +62,12 @@ public class AdvBlob extends BaseBlob {
 
     public void updatePosition(Set<Input> input, long delta_t, int framerate, Dimension field) {
         //Retardation
-        eastSpeed = eastSpeed - (eastSpeed*3/4) * delta_t/(1/framerate);
-        westSpeed = westSpeed - (westSpeed*3/4) * delta_t/(1/framerate);
-        northSpeed = northSpeed - (northSpeed*3/4) * delta_t/(1/framerate);
-        southSpeed = southSpeed - (southSpeed*3/4) * delta_t/(1/framerate);
+        eastSpeed = eastSpeed - (eastSpeed*3/4) * delta_t/(1000/framerate);
+        westSpeed = westSpeed - (westSpeed*3/4) * delta_t/(1000/framerate);
+        northSpeed = northSpeed - (northSpeed*3/4) * delta_t/(1000/framerate);
+        southSpeed = southSpeed - (southSpeed*3/4) * delta_t/(1000/framerate);
         if (input != null) updateSpeed(input);
-        move(delta_t/(1/framerate), field);
+        move(delta_t/(1000/framerate), field);
     }
 
     public boolean eatBlob(BaseBlob toBeEaten){

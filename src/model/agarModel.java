@@ -47,7 +47,7 @@ public class AgarModel {
     private void spawnBaseBlobs () {
         //TODO: Maybe needs to space them out so they won't spawn at the same place.
         // Density of base blobs is 50 pixels per base blob
-        int maxBaseBlobs = (int)(field.getHeight() * field.getWidth() / 50);
+        int maxBaseBlobs = 1;//TODO: (int)(field.getHeight() * field.getWidth() / 50);
         Random rand = new Random();
         int radius = 10;
         for (int i = 0; maxBaseBlobs > i; i++) {
@@ -68,7 +68,15 @@ public class AgarModel {
         avatar = new AdvBlob(new Point(x,y), radius);
     }
 
-    public Dimension getField() {
+    public Dimension getFieldSize() {
         return field;
+    }
+
+    public ArrayList<BaseBlob> circlesToDraw () {
+        ArrayList<BaseBlob> result = new ArrayList<BaseBlob>();
+        result.addAll(baseBlobs);
+        result.addAll(advBlobs);
+        result.add(avatar);
+        return result;
     }
 }
