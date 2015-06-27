@@ -30,8 +30,8 @@ class Agar {
 class ControllerOptions {
     private int framerate = 30;
     private String player = "Bengt";
-    private char playerEast = 'a';
-    private char playerWest = 'd';
+    private char playerEast = 'd';
+    private char playerWest = 'a';
     private char playerNorth = 'w';
     private char playerSouth = 's';
 

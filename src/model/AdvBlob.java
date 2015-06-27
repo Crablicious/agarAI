@@ -6,46 +6,51 @@ import java.util.Set;
 //TODO: Add ability to split.
 public class AdvBlob extends BaseBlob {
 	private double maxSpeed;
-	private double westSpeed;
-	private double eastSpeed;
-	private double northSpeed;
-	private double southSpeed;
+	private double xSpeed;
+    private double ySpeed;
 
 	public AdvBlob(Point blobCenterPoint, int radius) {
         super(blobCenterPoint, radius);
         calculateMaxSpeed();
-        westSpeed = 0;
-        eastSpeed = 0;
-        northSpeed = 0;
-        southSpeed = 0;
+        xSpeed = 0;
+        ySpeed = 0;
 	}
 
     public void calculateMaxSpeed() {
         maxSpeed = 10; //TODO: daw- getArea()/300;
     }
 
-	public void updateSpeed(Set<Input> input) {
+	public void updateSpeed(Set<Input> input, double frametime) {
         calculateMaxSpeed();
         //TODO: Might need some acceleration instead of constant setting.
 
+        //(0,0) top left corner
         if (input.contains(new Input(Input.Dir.EAST))){
-            eastSpeed = maxSpeed;
+            xSpeed += maxSpeed/10 * frametime;
         }
         if (input.contains(new Input(Input.Dir.WEST))){
-            westSpeed = maxSpeed;
+            xSpeed -= maxSpeed/10 * frametime;
         }
         if (input.contains(new Input(Input.Dir.NORTH))){
-            northSpeed = maxSpeed;
+            ySpeed -= maxSpeed/10 * frametime;
         }
         if (input.contains(new Input(Input.Dir.SOUTH))){
-            southSpeed = maxSpeed;
+            ySpeed += maxSpeed/10 * frametime;
+        }
+
+        //Speed can't be greater than maxSpeed
+        if (Math.abs(xSpeed) > maxSpeed) {
+            xSpeed = xSpeed/Math.abs(xSpeed)*maxSpeed;
+        }
+        if (Math.abs(ySpeed) > maxSpeed) {
+            ySpeed = ySpeed/Math.abs(ySpeed)*maxSpeed;
         }
 	}
 
     /* Is responsible for boundaries */
-    public void move(long frameTime, Dimension field) {
-        blobCenterPoint.x += (eastSpeed-westSpeed) * frameTime;
-        blobCenterPoint.y += (northSpeed-southSpeed) * frameTime;
+    public void move(double frametime, Dimension field) {
+        blobCenterPoint.x += (xSpeed * frametime);
+        blobCenterPoint.y += (ySpeed * frametime);
 
         if ((blobCenterPoint.x + radius) > field.getWidth()) {
             blobCenterPoint.x = (int)(field.getWidth() - radius);
@@ -61,13 +66,16 @@ public class AdvBlob extends BaseBlob {
     }
 
     public void updatePosition(Set<Input> input, long delta_t, int framerate, Dimension field) {
+        double frametime = delta_t/(1000/framerate);
         //Retardation
-        eastSpeed = eastSpeed - (eastSpeed*3/4) * delta_t/(1000/framerate);
-        westSpeed = westSpeed - (westSpeed*3/4) * delta_t/(1000/framerate);
-        northSpeed = northSpeed - (northSpeed*3/4) * delta_t/(1000/framerate);
-        southSpeed = southSpeed - (southSpeed*3/4) * delta_t/(1000/framerate);
-        if (input != null) updateSpeed(input);
-        move(delta_t/(1000/framerate), field);
+        //TODO: Why is avatar retarding different on - and + sides?
+        xSpeed = xSpeed * 0.75 * frametime;
+        ySpeed = ySpeed * 0.75 * frametime;
+
+        if (input != null) updateSpeed(input, frametime);
+        move(frametime, field);
+        System.out.println(xSpeed);
+        //System.out.println(ySpeed);
     }
 
     public boolean eatBlob(BaseBlob toBeEaten){
