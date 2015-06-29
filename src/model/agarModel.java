@@ -32,12 +32,12 @@ public class AgarModel {
         findCollision(avatar);
     }
 
+    //TODO: Make this method work. Current problem: collideAndEat, what argument?
+    //TODO: Two methods maybe? AdvBlob does not belong to Blob. Argument: ArrayList<Blob> after BaseBlob fix.
     private void findCollision (AdvBlob blob) {
         for (AdvBlob iterABlob: advBlobs) {
-            if (blob.collides(iterABlob)) {
-                if (blob.eatBlob(iterABlob)) {
-                    advBlobs.remove(iterABlob);
-                }
+            if (blob.collideAndEat(iterABlob)) {
+                advBlobs.remove(iterABlob);
             }
         }
 
@@ -53,7 +53,6 @@ public class AgarModel {
             if (blob.eatBlob(avatar)) {
                 //TODO: eat avatar
             }
-
         }
     }
 
@@ -96,7 +95,6 @@ public class AgarModel {
         do {
             testX = rand.nextInt((int)field.getWidth()+1-2*radius) + radius;
         } while (isTooCloseX(testX, radius));
-        //System.out.println(new Point(testX, testY)); //TODO: This sucks
         return new Point(testX, testY);
     }
 

@@ -26,8 +26,10 @@ public class AgarView {
         //initialize the View members:
         this.model = model;
 
-        WIDTH_PXL = 768;
-        HEIGHT_PXL = WIDTH_PXL*((int)model.getFieldSize().getHeight())/((int)model.getFieldSize().getWidth());
+        //WIDTH_PXL = 768;
+        //HEIGHT_PXL = WIDTH_PXL*((int)model.getFieldSize().getHeight())/((int)model.getFieldSize().getWidth());
+        WIDTH_PXL = (int) model.getFieldSize().getWidth();
+        HEIGHT_PXL = (int) model.getFieldSize().getHeight();
 
         this.balls = new ArrayList<Ball>();
 
@@ -54,18 +56,17 @@ public class AgarView {
                     msgLabel.setOpaque(false);
                     msgLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
+
+
                     frame.getContentPane().add(msgLabel);
                     frame.getContentPane().setPreferredSize(new Dimension(WIDTH_PXL, HEIGHT_PXL));
-
 
                     for (BaseBlob blob : model.circlesToDraw()) {
                         Ball newBall = new Ball(blob);
                         balls.add(newBall);
                         frame.getContentPane().add(newBall.getJComponent());
                     }
-
                     frame.getContentPane().add(background);
-                    
                     frame.pack();
                 }
             });
@@ -130,7 +131,8 @@ public class AgarView {
  */
 class Ball {
     BaseBlob myBlob;
-    private JComponent comp = new JLabel(""); //new MyCircle();
+    private JComponent comp = new JLabel("");
+    //private JComponent comp = new MyCircle();
 
     public Ball(BaseBlob myBlob) {
         Point center = myBlob.getBlobCenterPoint();
