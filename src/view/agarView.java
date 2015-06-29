@@ -11,6 +11,7 @@ import java.util.HashMap;
 import javafx.scene.shape.Circle;
 import model.AgarModel;
 import model.BaseBlob;
+import model.Blob;
 import sun.print.BackgroundServiceLookup;
 
 public class AgarView {
@@ -61,11 +62,14 @@ public class AgarView {
                     frame.getContentPane().add(msgLabel);
                     frame.getContentPane().setPreferredSize(new Dimension(WIDTH_PXL, HEIGHT_PXL));
 
-                    for (BaseBlob blob : model.circlesToDraw()) {
-                        Ball newBall = new Ball(blob);
+
+                    ArrayList<Blob> circles = model.circlesToDraw();
+                    for (int i = 0; circles.size() > i; i++) {
+                        Ball newBall = new Ball(circles.get(i));
                         balls.add(newBall);
                         frame.getContentPane().add(newBall.getJComponent());
                     }
+
                     frame.getContentPane().add(background);
                     frame.pack();
                 }
@@ -111,7 +115,7 @@ public class AgarView {
                     for (int i = 0; balls.size() > i; i++) {
                         if (balls.get(i).myBlob != null) {
                             if (model.circlesToDraw().contains(balls.get(i).myBlob)) {
-                                balls.get(i).update(scalePoint(balls.get(i).myBlob.getBlobCenterPoint()));
+                                balls.get(i).update(scalePoint(balls.get(i).myBlob.getCenter()));
                             }else {
                                 frame.remove(balls.get(i).getJComponent());
                                 balls.remove(balls.get(i));
@@ -130,12 +134,12 @@ public class AgarView {
  * visualizing the blob
  */
 class Ball {
-    BaseBlob myBlob;
+    Blob myBlob;
     private JComponent comp = new JLabel("");
     //private JComponent comp = new MyCircle();
 
-    public Ball(BaseBlob myBlob) {
-        Point center = myBlob.getBlobCenterPoint();
+    public Ball(Blob myBlob) {
+        //Point center = myBlob.getCenter();
         //this.comp = new MyCircle();
         //this.comp.setBackground(Color.WHITE);
         this.myBlob = myBlob;

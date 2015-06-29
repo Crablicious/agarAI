@@ -2,6 +2,7 @@ package model;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Set;
 
 //TODO: Add ability to split.
@@ -11,7 +12,6 @@ public class AdvBlob{
 
 	public AdvBlob(Point blobCenterPoint, int radius) {
         blobs = new ArrayList<Blob>();
-        blobs.add(new Blob(blobCenterPoint, radius));
         blobs.add(new Blob(blobCenterPoint, radius));
         updateMaxSpeed();
 	}
@@ -166,5 +166,17 @@ public class AdvBlob{
             }
         }
         return false;
+    }
+
+    public Iterator<Blob>getBlobIterator (){
+        return blobs.iterator();
+    }
+
+    public ArrayList<Blob>getBlobs () {
+        return blobs;
+    }
+
+    public boolean isEmpty(){
+        return blobs.isEmpty();
     }
 }
