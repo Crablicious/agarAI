@@ -84,6 +84,10 @@ public class Blob {
         }
         return false;
     }
+
+    public String toString () {
+        return circle.getCenter().toString() + circle.getRadius();
+    }
 }
 
 //TODO: Make all circles of the same blob go together and join up.

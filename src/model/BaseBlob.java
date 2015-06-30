@@ -7,7 +7,7 @@ public class BaseBlob {
     private Blob blob;
     //TODO: Make this class contain 1 blob instead of being a blob.
     public BaseBlob(Point blobCenterPoint, int radius) {
-        new Blob(blobCenterPoint, radius);
+        blob = new Blob(blobCenterPoint, radius);
     }
 
     public Blob getBlob() {

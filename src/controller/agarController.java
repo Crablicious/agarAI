@@ -146,7 +146,9 @@ class AgarController implements KeyListener {
                 delta = System.currentTimeMillis() - last_compute;
 
 
-            } catch (Exception ignore) {}
+            } catch (Exception e) {
+                System.out.println("Game loop failed" + e);
+            }
         }
     }
 }

@@ -20,18 +20,17 @@ public class AgarModel {
         baseBlobs = new ArrayList<BaseBlob>();
         advBlobs = new ArrayList<AdvBlob>();
         spawnBaseBlobs();
-        //System.out.println("HIT 8"); //TODO 8
         //spawnAvatar();
     }
 
     public void compute(Set<Input> input, long delta_t) {
-        avatar.updatePosition(input, delta_t, framerate, field);
+        if (avatar != null) avatar.updatePosition(input, delta_t, framerate, field);
         for(AdvBlob blob: advBlobs) {
             Set<Input> inputAI = null; //TODO: Make null into smart input (AI)
             blob.updatePosition(inputAI,  delta_t, framerate, field);
             findCollision(blob);
         }
-        findCollision(avatar);
+        if (avatar != null) findCollision(avatar);
     }
 
     private void findCollision (AdvBlob blob) {
@@ -71,7 +70,6 @@ public class AgarModel {
         for (int i = 0; maxBaseBlobs > i; i++) {
             //Compensated to stay within field boundary.
             BaseBlob blob = new BaseBlob(generateSpawnPoint(radius), radius);
-            //System.out.println("HIT 5"); //TODO 5
             baseBlobs.add(blob);
         }
     }
@@ -86,18 +84,14 @@ public class AgarModel {
     }
 
     public ArrayList<Blob> circlesToDraw () {
-        //System.out.println("HIT 2"); //TODO: 2
         ArrayList<Blob> result = new ArrayList<Blob>();
         for (BaseBlob bB : baseBlobs) {
-            //System.out.println("HIT 6"); //TODO 6
             result.add(bB.getBlob());
         }
         for (AdvBlob aB : advBlobs) {
-            //System.out.println("HIT 6"); //TODO 7
             result.addAll(aB.getBlobs());
         }
         if (avatar != null) result.addAll(avatar.getBlobs());
-        //System.out.println("HIT 3"); //TODO: 3
         return result;
     }
 
@@ -106,7 +100,6 @@ public class AgarModel {
         Random rand = new Random();
         int testY;
         int testX;
-        //System.out.println("Hit 1"); //TODO: 1
         do {
             testY = rand.nextInt((int)field.getHeight()+1-2*radius) + radius;
         } while (isTooCloseY(testY, radius));
@@ -121,11 +114,9 @@ public class AgarModel {
     private boolean isTooCloseY (int yCoord, int radius) {
         ArrayList<Blob> circles = circlesToDraw();
         if (circles.isEmpty()) return false;
-
         for (Blob blob : circles) {
-            //System.out.println("HIT 10"); //TODO 10
             if (blob == null) return false;
-            if (!(Math.abs(yCoord - blob.getCenter().getY()) >= radius + blob.getRadius()+10)) return false;
+            if (!(Math.abs(yCoord - blob.getCenter().getY()) <= radius + blob.getRadius()+10)) return false;
         }
         return true;
     }
@@ -134,17 +125,16 @@ public class AgarModel {
     private boolean isTooCloseX (int xCoord, int radius) {
         ArrayList<Blob> circles = circlesToDraw();
         if (circles.isEmpty()) return false;
-
         for (Blob blob : circles) {
-            //System.out.println("HIT 9"); //TODO 9
             if (blob == null) return false;
-            if (!(Math.abs(xCoord - blob.getCenter().getX()) >= radius + blob.getRadius()+10)) return false;
+            if (!(Math.abs(xCoord - blob.getCenter().getX()) <= radius + blob.getRadius()+10)) return false;
         }
         return true;
     }
 
     public String getMessage() {
-        return Double.toString(avatar.getMaxSpeed());
+        if (avatar == null) return "";
+        return Double.toString(avatar.getBlobs().get(0).getMaxSpeed());
     }
 }
 

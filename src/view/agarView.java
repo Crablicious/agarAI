@@ -27,10 +27,10 @@ public class AgarView {
         //initialize the View members:
         this.model = model;
 
-        //WIDTH_PXL = 768;
-        //HEIGHT_PXL = WIDTH_PXL*((int)model.getFieldSize().getHeight())/((int)model.getFieldSize().getWidth());
-        WIDTH_PXL = (int) model.getFieldSize().getWidth();
-        HEIGHT_PXL = (int) model.getFieldSize().getHeight();
+        WIDTH_PXL = 768;
+        HEIGHT_PXL = WIDTH_PXL*((int)model.getFieldSize().getHeight())/((int)model.getFieldSize().getWidth());
+        //WIDTH_PXL = (int) model.getFieldSize().getWidth();
+        //HEIGHT_PXL = (int) model.getFieldSize().getHeight();
 
         this.balls = new ArrayList<Ball>();
 
@@ -64,8 +64,11 @@ public class AgarView {
 
 
                     ArrayList<Blob> circles = model.circlesToDraw();
+                    //System.out.println(circles);
                     for (int i = 0; circles.size() > i; i++) {
                         Ball newBall = new Ball(circles.get(i));
+                        //System.out.println("Ball added");
+                        //System.out.println(circles.get(i));
                         balls.add(newBall);
                         frame.getContentPane().add(newBall.getJComponent());
                     }

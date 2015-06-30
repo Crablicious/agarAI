@@ -9,15 +9,9 @@ public class Circle {
     private double radius;
     private Point circleCenterPoint;
 
-    public Circle() {
-        radius = 0;
-        circleCenterPoint.x = 0;
-        circleCenterPoint.y = 0;
-    }
-
     public Circle(Point circleCenterPoint, double radius) {
         this.circleCenterPoint = circleCenterPoint;
-        this. radius = radius;
+        this.radius = radius;
     }
 
     public Point getCenter() {

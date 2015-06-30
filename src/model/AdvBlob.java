@@ -7,7 +7,6 @@ import java.util.Set;
 
 //TODO: Add ability to split.
 public class AdvBlob{
-	private double maxSpeed;
     private ArrayList<Blob> blobs;
 
 	public AdvBlob(Point blobCenterPoint, int radius) {
@@ -28,32 +27,32 @@ public class AdvBlob{
         //(0,0) top left corner
         if (input.contains(new Input(Input.Dir.EAST))){
             for (Blob blob : blobs) {
-                blob.setxSpeed(blob.getxSpeed() + maxSpeed/10 * frametime);
+                blob.setxSpeed(blob.getxSpeed() + blob.getMaxSpeed()/10 * frametime);
             }
         }
         if (input.contains(new Input(Input.Dir.WEST))){
             for (Blob blob : blobs) {
-                blob.setxSpeed(blob.getxSpeed() - maxSpeed/10 * frametime);
+                blob.setxSpeed(blob.getxSpeed() - blob.getMaxSpeed()/10 * frametime);
             }
         }
         if (input.contains(new Input(Input.Dir.NORTH))){
             for (Blob blob : blobs) {
-                blob.setySpeed(blob.getySpeed() - maxSpeed / 10 * frametime);
+                blob.setySpeed(blob.getySpeed() - blob.getMaxSpeed() / 10 * frametime);
             }
         }
         if (input.contains(new Input(Input.Dir.SOUTH))){
             for (Blob blob : blobs) {
-                blob.setySpeed(blob.getySpeed() + maxSpeed/10 * frametime);
+                blob.setySpeed(blob.getySpeed() + blob.getMaxSpeed()/10 * frametime);
             }
         }
 
         //Speed can't be greater than maxSpeed
         for (Blob blob : blobs) {
-            if (Math.abs(blob.getxSpeed()) > maxSpeed) {
-                blob.setxSpeed(blob.getxSpeed() / Math.abs(blob.getxSpeed()) * maxSpeed);
+            if (Math.abs(blob.getxSpeed()) > blob.getMaxSpeed()) {
+                blob.setxSpeed(blob.getxSpeed() / Math.abs(blob.getxSpeed()) * blob.getMaxSpeed());
             }
-            if (Math.abs(blob.getySpeed()) > maxSpeed) {
-                blob.setySpeed(blob.getySpeed() / Math.abs(blob.getySpeed()) * maxSpeed);
+            if (Math.abs(blob.getySpeed()) > blob.getMaxSpeed()) {
+                blob.setySpeed(blob.getySpeed() / Math.abs(blob.getySpeed()) * blob.getMaxSpeed());
             }
         }
 	}
@@ -149,10 +148,6 @@ public class AdvBlob{
         }
         updateSpeed(input, frametime);
         move(frametime, field);
-    }
-
-    public double getMaxSpeed() {
-        return maxSpeed;
     }
 
     //Returns true if "blob" is eaten.
