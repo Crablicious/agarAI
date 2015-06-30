@@ -20,7 +20,7 @@ public class AgarModel {
         baseBlobs = new ArrayList<BaseBlob>();
         advBlobs = new ArrayList<AdvBlob>();
         spawnBaseBlobs();
-        //spawnAvatar();
+        spawnAvatar();
     }
 
     public void compute(Set<Input> input, long delta_t) {

@@ -6,12 +6,14 @@ import java.util.Iterator;
 import java.util.Set;
 
 //TODO: Add ability to split.
+//TODO: Multiple blobs and their "move" isn't working correctly.
 public class AdvBlob{
     private ArrayList<Blob> blobs;
 
 	public AdvBlob(Point blobCenterPoint, int radius) {
         blobs = new ArrayList<Blob>();
         blobs.add(new Blob(blobCenterPoint, radius));
+        blobs.add(new Blob(new Point(blobCenterPoint.x+2*radius, blobCenterPoint.y+2*radius), radius));
         updateMaxSpeed();
 	}
 
@@ -80,63 +82,49 @@ public class AdvBlob{
             for (Blob collisionBlob : blobs) {
                 if (collisionBlob != blob){
                     if (blob.collides(collisionBlob)){
-                        //First determine what quadrant we should search in.
-                        boolean[] isPositive = {false, false}; // x,y
-                        if (blob.getCenter().x >= collisionBlob.getCenter().x) isPositive[0] = true;
-                        if (blob.getCenter().y >= collisionBlob.getCenter().y) isPositive[1] = true;
-                        int quadrant = 0;
-                        if (isPositive[0] && isPositive[1]) quadrant = 1;
-                        else if (!isPositive[0] && isPositive[1]) quadrant = 2;
-                        else if (!isPositive[0] && !isPositive[1]) quadrant = 3;
-                        else if (isPositive[0] && !isPositive[1]) quadrant = 4;
-
-                        int granularity = 10;
-                        Point closestColEdgePoint = collisionBlob.getCenter();
-                        double testAngle;
-                        int testX;
-                        int testY;
-                        double corrAngle = 0;
-                        for (int i = 0; granularity > i; i++){
-                            testAngle = i*Math.PI/2/granularity;
-                            testX = (int) (collisionBlob.getRadius() * Math.sin(testAngle));
-                            testY = (int) (collisionBlob.getRadius() * Math.cos(testAngle));
-                            switch (quadrant) {
-                                case 1:
-                                    break;
-                                case 2:
-                                    testAngle += Math.PI/2;
-                                    testX = -testX;
-                                    break;
-                                case 3:
-                                    testAngle += Math.PI;
-                                    testX = -testX;
-                                    testY = -testY;
-                                    break;
-                                case 4:
-                                    testAngle += Math.PI*3/2;
-                                    testY = -testY;
-                                default: System.out.println("Quadrant never initialized");
-                                    break;
-                            }
-                            if (new Point(collisionBlob.getCenter().x + testX,
-                                    collisionBlob.getCenter().y + testY).distance(blob.getCenter()) <
-                                    closestColEdgePoint.distance(blob.getCenter())) {
-                                closestColEdgePoint = new Point(collisionBlob.getCenter().x + testX,
-                                        collisionBlob.getCenter().y + testY);
-                                corrAngle = testAngle;
-                            }
-                        }
-                        testX = (int)((blob.getRadius() - closestColEdgePoint.distance(blob.getCenter()))
-                                * Math.sin(corrAngle));
-                        testY = (int)((blob.getRadius() - closestColEdgePoint.distance(blob.getCenter()))
-                                * Math.cos(corrAngle));
-                        Point closestBlobEdgePoint = new Point(testX, testY);
-                        blob.getCenter().x -= (closestBlobEdgePoint.x - closestColEdgePoint.x);
-                        blob.getCenter().y -= (closestBlobEdgePoint.y - closestColEdgePoint.y);
+                        Point collisionVector = getCollisionVector(blob, collisionBlob);
+                        blob.getCenter().translate(collisionVector.x, collisionVector.y);
                     }
                 }
             }
         }
+    }
+
+    //Returns a vector that subBlob is supposed to move. Everything is from domBlob's perspective.
+    //blob = subBlob, collisionBlob = domBlob.
+    private Point getCollisionVector(Blob subBlob, Blob domBlob) {
+        int quadrant = findQuadrant(subBlob.getCenter(), domBlob.getCenter());
+
+        double closestAngle = 42;
+        Point closestToSub = domBlob.getCenter();
+        int granularity = 10;
+        //Checks [0, PI/2], [PI/2, PI], [PI, 3/2PI], [3/2PI, 2PI].
+        for (int i = 0; granularity >= i; i++) {
+            double testAngle = i*Math.PI/2/granularity + (quadrant-1)*Math.PI/2;
+            int testX = (int) (domBlob.getRadius() * Math.cos(testAngle));
+            int testY = (int) (domBlob.getRadius() * Math.sin(testAngle));
+            Point testPoint = new Point(domBlob.getCenter().x + testX, domBlob.getCenter().y + testY);
+            if (testPoint.distance(subBlob.getCenter()) < closestToSub.distance(subBlob.getCenter())){
+                closestToSub = testPoint;
+                closestAngle = testAngle;
+            }
+        }
+        double relativeDistance = Math.abs(subBlob.getRadius() - closestToSub.distance(subBlob.getCenter()));
+        Point collisionVector = new Point((int) (relativeDistance * Math.cos(closestAngle)), (int)
+                (relativeDistance * Math.sin(closestAngle)));
+        return collisionVector;
+    }
+
+    private int findQuadrant (Point subCircle, Point domCircle) {
+        boolean[] isPositive = {false, false}; // x,y
+        if (subCircle.x >= domCircle.x) isPositive[0] = true;
+        if (subCircle.y >= domCircle.y) isPositive[1] = true;
+        int quadrant = 0;
+        if (isPositive[0] && isPositive[1]) quadrant = 1;
+        else if (!isPositive[0] && isPositive[1]) quadrant = 2;
+        else if (!isPositive[0] && !isPositive[1]) quadrant = 3;
+        else if (isPositive[0] && !isPositive[1]) quadrant = 4;
+        return quadrant;
     }
 
     public void updatePosition(Set<Input> input, long delta_t, int framerate, Dimension field) {
@@ -150,7 +138,7 @@ public class AdvBlob{
         move(frametime, field);
     }
 
-    //Returns true if "blob" is eaten.
+    //Returns true if "blob" is eaten. Callers responsibility to remove said blob.
     public boolean collideAndEat(Blob blob){
         for (Blob thisBlob : blobs) {
             if (thisBlob.getCenter().distance(blob.getCenter()) < thisBlob.getRadius()+ blob.getRadius()) {
