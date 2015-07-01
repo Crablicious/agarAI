@@ -6,7 +6,6 @@ import java.util.Iterator;
 import java.util.Set;
 
 //TODO: Add ability to split.
-//TODO: Multiple blobs and their "move" isn't working correctly.
 public class AdvBlob{
     private ArrayList<Blob> blobs;
 
@@ -24,27 +23,30 @@ public class AdvBlob{
     }
 
 	public void updateSpeed(Set<Input> input, double frametime) {
-        //TODO: Add speed towards closest blob?
+        //TODO: Add speed so they gather up, but how?
         updateMaxSpeed();
         //(0,0) top left corner
-        if (input.contains(new Input(Input.Dir.EAST))){
-            for (Blob blob : blobs) {
-                blob.setxSpeed(blob.getxSpeed() + blob.getMaxSpeed()/10 * frametime);
+
+        if (input != null) {
+            if (input.contains(new Input(Input.Dir.EAST))){
+                for (Blob blob : blobs) {
+                    blob.setxSpeed(blob.getxSpeed() + blob.getMaxSpeed()/10 * frametime);
+                }
             }
-        }
-        if (input.contains(new Input(Input.Dir.WEST))){
-            for (Blob blob : blobs) {
-                blob.setxSpeed(blob.getxSpeed() - blob.getMaxSpeed()/10 * frametime);
+            if (input.contains(new Input(Input.Dir.WEST))){
+                for (Blob blob : blobs) {
+                    blob.setxSpeed(blob.getxSpeed() - blob.getMaxSpeed()/10 * frametime);
+                }
             }
-        }
-        if (input.contains(new Input(Input.Dir.NORTH))){
-            for (Blob blob : blobs) {
-                blob.setySpeed(blob.getySpeed() - blob.getMaxSpeed() / 10 * frametime);
+            if (input.contains(new Input(Input.Dir.NORTH))){
+                for (Blob blob : blobs) {
+                    blob.setySpeed(blob.getySpeed() - blob.getMaxSpeed() / 10 * frametime);
+                }
             }
-        }
-        if (input.contains(new Input(Input.Dir.SOUTH))){
-            for (Blob blob : blobs) {
-                blob.setySpeed(blob.getySpeed() + blob.getMaxSpeed()/10 * frametime);
+            if (input.contains(new Input(Input.Dir.SOUTH))){
+                for (Blob blob : blobs) {
+                    blob.setySpeed(blob.getySpeed() + blob.getMaxSpeed()/10 * frametime);
+                }
             }
         }
 

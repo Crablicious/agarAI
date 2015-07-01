@@ -20,6 +20,7 @@ public class AgarModel {
         baseBlobs = new ArrayList<BaseBlob>();
         advBlobs = new ArrayList<AdvBlob>();
         spawnBaseBlobs();
+        spawnAdvBlobs();
         spawnAvatar();
     }
 
@@ -34,6 +35,7 @@ public class AgarModel {
     }
 
     private void findCollision (AdvBlob blob) {
+        //TODO: findCollision can have blobs target themselves, right now disabled for avatar. Make cooldown after split?
         //for (AdvBlob iterABlob: advBlobs) {
         for (int i = 0; advBlobs.size() > i; i++) {
             Iterator<Blob> blobIterator = advBlobs.get(i).getBlobIterator();
@@ -42,8 +44,10 @@ public class AgarModel {
                     blobIterator.remove();
                 }
             }
-            if (advBlobs.get(i).isEmpty()) advBlobs.remove(advBlobs.get(i));
-            i--;
+            if (advBlobs.get(i).isEmpty()) {
+                advBlobs.remove(advBlobs.get(i));
+                i--;
+            }
         }
 
         for (int i = 0; baseBlobs.size() > i; i++) {
@@ -53,7 +57,7 @@ public class AgarModel {
             }
         }
 
-        if (avatar != null) {
+        if (avatar != null && avatar != blob) {
             Iterator<Blob> avatarIterator = avatar.getBlobIterator();
             while (avatarIterator.hasNext()) {
                 if (blob.collideAndEat(avatarIterator.next())) {
@@ -71,6 +75,16 @@ public class AgarModel {
             //Compensated to stay within field boundary.
             BaseBlob blob = new BaseBlob(generateSpawnPoint(radius), radius);
             baseBlobs.add(blob);
+        }
+    }
+
+    //Does NOT spawn Avatar.
+    private void spawnAdvBlobs () {
+        int maxAdvBlobs = 5; //TODO: Come up with genius way to decide this number
+        int radius = 10;
+        for (int i = 0; maxAdvBlobs > i; i++) {
+            AdvBlob advBlob = new AdvBlob(generateSpawnPoint(radius), radius);
+            advBlobs.add(advBlob);
         }
     }
 
