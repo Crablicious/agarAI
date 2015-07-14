@@ -27,10 +27,10 @@ public class AgarView {
         //initialize the View members:
         this.model = model;
 
-        WIDTH_PXL = 768;
-        HEIGHT_PXL = WIDTH_PXL*((int)model.getFieldSize().getHeight())/((int)model.getFieldSize().getWidth());
-        //WIDTH_PXL = (int) model.getFieldSize().getWidth();
-        //HEIGHT_PXL = (int) model.getFieldSize().getHeight();
+        //WIDTH_PXL = 768;
+        //HEIGHT_PXL = WIDTH_PXL*((int)model.getFieldSize().getHeight())/((int)model.getFieldSize().getWidth());
+        WIDTH_PXL = (int) model.getFieldSize().getWidth();
+        HEIGHT_PXL = (int) model.getFieldSize().getHeight();
 
         this.balls = new ArrayList<Ball>();
 
@@ -44,8 +44,9 @@ public class AgarView {
                     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                     
                     frame.setLayout(null);
-                    JLabel background = new JLabel("");
-                    background.setBackground(Color.BLACK);
+                   //frame.setVisible(true);
+                    //frame.setBackground(Color.BLACK);
+                    JComponent background = new Background(Color.BLACK);
                     background.setOpaque(true);
                     background.setBorder(BorderFactory.createLineBorder(Color.WHITE));
                     background.setBounds(0, 0, WIDTH_PXL, HEIGHT_PXL);
@@ -57,11 +58,16 @@ public class AgarView {
                     msgLabel.setOpaque(false);
                     msgLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
+                    /*JComponent testB = new Background(Color.RED);
+                    testB.setOpaque(true);
+                    testB.setBounds(WIDTH_PXL / 2, HEIGHT_PXL / 2, 20, 20);*/
 
+                    /*JComponent circletest = new DrawCircle();
+                    circletest.setOpaque(true);
+                    circletest.setBounds(WIDTH_PXL/2, HEIGHT_PXL/2, 10, 10);*/
 
                     frame.getContentPane().add(msgLabel);
                     frame.getContentPane().setPreferredSize(new Dimension(WIDTH_PXL, HEIGHT_PXL));
-
 
                     ArrayList<Blob> circles = model.circlesToDraw();
                     //System.out.println(circles);
@@ -72,7 +78,8 @@ public class AgarView {
                         balls.add(newBall);
                         frame.getContentPane().add(newBall.getJComponent());
                     }
-
+                    //frame.getContentPane().add(circletest);
+                    //frame.getContentPane().add(testB);
                     frame.getContentPane().add(background);
                     frame.pack();
                 }
@@ -118,7 +125,7 @@ public class AgarView {
                     for (int i = 0; balls.size() > i; i++) {
                         if (balls.get(i).myBlob != null) {
                             if (model.circlesToDraw().contains(balls.get(i).myBlob)) {
-                                balls.get(i).update(scalePoint(balls.get(i).myBlob.getCenter()));
+                                balls.get(i).update(/*scalePoint*/(balls.get(i).myBlob.getCenter()));
                             }else {
                                 frame.remove(balls.get(i).getJComponent());
                                 balls.remove(balls.get(i));
@@ -138,22 +145,16 @@ public class AgarView {
  */
 class Ball {
     Blob myBlob;
-    private JComponent comp = new JLabel("");
-    //private JComponent comp = new MyCircle();
+    //private JComponent comp = new JLabel("");
+    private JComponent comp = new DrawCircle();
 
     public Ball(Blob myBlob) {
-        //Point center = myBlob.getCenter();
-        //this.comp = new MyCircle();
-        //this.comp.setBackground(Color.WHITE);
         this.myBlob = myBlob;
         this.comp.setOpaque(true);
-        this.comp.setBackground(Color.WHITE);
     }
 
     public void update(Point loc) {
-        //this.comp.setSize((int) myBlob.getRadius()*2, (int) (myBlob.getRadius()*2));
-        //this.comp.setLocation((int)loc.getX(), (int)loc.getY());
-        this.comp.setBounds((int)loc.getX() - (int)myBlob.getRadius(), (int)loc.getY() - (int)myBlob.getRadius(), (int)myBlob.getRadius()*2, (int)myBlob.getRadius()*2);
+        this.comp.setBounds((int)(loc.getX() - myBlob.getRadius()), (int)(loc.getY() - myBlob.getRadius()), (int)(myBlob.getRadius()*2), (int)(myBlob.getRadius()*2));
     }
 
     public JComponent getJComponent() {

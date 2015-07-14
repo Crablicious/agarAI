@@ -142,9 +142,9 @@ public class AdvBlob{
 
     //Returns true if "blob" is eaten. Callers responsibility to remove said blob.
     public boolean collideAndEat(Blob blob){
-        for (Blob thisBlob : blobs) {
+        for (Blob thisBlob : this.blobs) {
             if (thisBlob.getCenter().distance(blob.getCenter()) < thisBlob.getRadius()+ blob.getRadius()) {
-                if (thisBlob.getArea()/blob.getArea() > 4/3){
+                if ((thisBlob.getArea()/blob.getArea()) > (5/4)){
                     thisBlob.setRadius(Math.sqrt((blob.getArea() + thisBlob.getArea()) / Math.PI));
                     return true;
                 }

@@ -1,6 +1,7 @@
 package model;
 
 import java.awt.*;
+import java.awt.geom.Arc2D;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
@@ -34,10 +35,16 @@ public class AgarModel {
         if (avatar != null) findCollision(avatar);
     }
 
+    /*
+    INPUT: AdvBlob, which collisions are to be studied.
+    EFFECT: Compares the input AdvBlob with all blobs on the playing field.
+    Eats colliding blobs if AdvBlob is big enough.
+     */
     private void findCollision (AdvBlob blob) {
         //TODO: findCollision can have blobs target themselves, right now disabled for avatar. Make cooldown after split?
-        //for (AdvBlob iterABlob: advBlobs) {
+
         for (int i = 0; advBlobs.size() > i; i++) {
+            //Iterates over all blobs in a single AdvBlob.
             Iterator<Blob> blobIterator = advBlobs.get(i).getBlobIterator();
             while (blobIterator.hasNext()) {
                 if (blob.collideAndEat(blobIterator.next())) {
@@ -69,6 +76,7 @@ public class AgarModel {
     }
 
     private void spawnBaseBlobs () {
+        //TODO: Revert this
         int maxBaseBlobs = (int)(field.getHeight() * field.getWidth() / 10000);
         int radius = 5;
         for (int i = 0; maxBaseBlobs > i; i++) {
@@ -148,7 +156,11 @@ public class AgarModel {
 
     public String getMessage() {
         if (avatar == null) return "";
-        return Double.toString(avatar.getBlobs().get(0).getMaxSpeed());
+        return "Testing bitch";
+        /*return Double.toString((int)avatar.getBlobs().get(0).getCenter().distance(baseBlobs.get(0).getBlob().getCenter()))
+                + " Sum of radius: " +
+                (avatar.getBlobs().get(0).getRadius()+baseBlobs.get(0).getBlob().getRadius());
+        */
     }
 }
 
