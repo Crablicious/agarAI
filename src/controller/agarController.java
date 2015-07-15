@@ -1,6 +1,5 @@
 package controller;
 
-import java.awt.*;
 import java.awt.event.*;
 import view.*;
 import model.*;
@@ -34,6 +33,8 @@ class ControllerOptions {
     private char playerWest = 'a';
     private char playerNorth = 'w';
     private char playerSouth = 's';
+    private char playerShoot = 'n';
+    private char playerSplit = 'm';
 
     public ControllerOptions parse(String opt) {
         try {
@@ -85,11 +86,20 @@ class ControllerOptions {
     public char getPlayerSouth() {
         return playerSouth;
     }
+
+    public char getPlayerShoot() {
+        return playerShoot;
+    }
+
+    public char getPlayerSplit() {
+        return playerSplit;
+    }
 }
 
 class AgarController implements KeyListener {
     private final ControllerOptions options;
     private final Map<Character, Input> inputMap;
+    private final Map<Character, Input> inputMapPressed;
     private final Set<Input> input = new HashSet<Input>();
     private final AgarView view;
     private final AgarModel model;
@@ -100,10 +110,15 @@ class AgarController implements KeyListener {
         this.view = new AgarView(model);
 
         this.inputMap = Collections.unmodifiableMap(new HashMap<Character,Input>() {{
-            put(options.getPlayerWest(), new Input(Input.Dir.WEST));
-            put(options.getPlayerEast(), new Input(Input.Dir.EAST));
-            put(options.getPlayerNorth(), new Input(Input.Dir.NORTH));
-            put(options.getPlayerSouth(), new Input(Input.Dir.SOUTH));
+            put(options.getPlayerWest(), new Input(Input.Action.WEST));
+            put(options.getPlayerEast(), new Input(Input.Action.EAST));
+            put(options.getPlayerNorth(), new Input(Input.Action.NORTH));
+            put(options.getPlayerSouth(), new Input(Input.Action.SOUTH));
+        }});
+
+        this.inputMapPressed = Collections.unmodifiableMap(new HashMap<Character,Input>() {{
+            put(options.getPlayerShoot(), new Input(Input.Action.SHOOT));
+            put(options.getPlayerSplit(), new Input(Input.Action.SPLIT));
         }});
     }
 
@@ -118,6 +133,9 @@ class AgarController implements KeyListener {
     public void keyReleased(KeyEvent e) {
         if (inputMap.containsKey(e.getKeyChar())) {
             input.remove(inputMap.get(e.getKeyChar()));
+        }
+        if (inputMapPressed.containsKey(e.getKeyChar())) {
+            input.add(inputMapPressed.get(e.getKeyChar()));
         }
     }
 

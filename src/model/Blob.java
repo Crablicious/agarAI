@@ -1,7 +1,6 @@
 package model;
 
 import java.awt.*;
-import java.util.ArrayList;
 
 /**
  * Created by Adam on 2015-06-29.
@@ -23,8 +22,13 @@ public class Blob {
         return maxSpeed;
     }
 
-    public void setMaxSpeed(double maxSpeed) {
-        this.maxSpeed = maxSpeed;
+    public void setMaxSpeed() {
+        this.maxSpeed = 10 - 0.001 * getArea();
+    }
+
+    public void retardate(double frametime) {
+        setxSpeed(getxSpeed() * 3 / 4 * frametime);
+        setySpeed(getySpeed() * 3 / 4 * frametime);
     }
 
     public double getxSpeed() {
@@ -45,6 +49,10 @@ public class Blob {
 
     public void setRadius(double radius) {
         this.circle.setRadius(radius);
+    }
+
+    public void setArea(double area) {
+        circle.setRadius(Math.sqrt(area/Math.PI));
     }
 
     public void setCenter(Point center) {

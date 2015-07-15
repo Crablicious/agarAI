@@ -1,7 +1,6 @@
 package model;
 
 import java.awt.*;
-import java.awt.geom.Arc2D;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
@@ -12,6 +11,7 @@ public class AgarModel {
     private AdvBlob avatar;
 	private ArrayList<BaseBlob> baseBlobs;
 	private ArrayList<AdvBlob> advBlobs;
+    private ArrayList<Blob> unDrawnBlobs;
     private Dimension field;
     private int framerate;
 
@@ -20,19 +20,62 @@ public class AgarModel {
         this.framerate = framerate;
         baseBlobs = new ArrayList<BaseBlob>();
         advBlobs = new ArrayList<AdvBlob>();
+        unDrawnBlobs = new ArrayList<Blob>();
         spawnBaseBlobs();
         spawnAdvBlobs();
         spawnAvatar();
     }
 
     public void compute(Set<Input> input, long delta_t) {
-        if (avatar != null) avatar.updatePosition(input, delta_t, framerate, field);
+        //Do actions based on input.
         for(AdvBlob blob: advBlobs) {
             Set<Input> inputAI = null; //TODO: Make null into smart input (AI)
+            //Do shoot and split actions
+            if (inputAI != null && inputAI.contains(new Input(Input.Action.SHOOT))) {
+                blob.shoot(input);
+                inputAI.remove(new Input(Input.Action.SHOOT));
+            }
+            if (inputAI != null && inputAI.contains(new Input(Input.Action.SPLIT))) {
+                //Do sth
+                inputAI.remove(new Input(Input.Action.SPLIT));
+            }
             blob.updatePosition(inputAI,  delta_t, framerate, field);
             findCollision(blob);
         }
-        if (avatar != null) findCollision(avatar);
+        if (avatar != null) {
+            if (input.contains(new Input(Input.Action.SHOOT))) {
+                ArrayList<BaseBlob> newBB = avatar.shoot(input);
+                baseBlobs.addAll(newBB);
+                for (BaseBlob bb : newBB) {
+                    unDrawnBlobs.add(bb.getBlob());
+                }
+                input.remove(new Input(Input.Action.SHOOT));
+            }
+            if (input.contains(new Input(Input.Action.SPLIT))) {
+                //Do sth
+            }
+            avatar.updatePosition(input, delta_t, framerate, field);
+            findCollision(avatar);
+        }
+        retardateBlobs(delta_t);
+    }
+
+    private void retardateBlobs(long delta_t) {
+        double frametime = delta_t/(1000/framerate);
+        for (AdvBlob advBlob : advBlobs){
+            Iterator<Blob> blobIterator = advBlob.getBlobIterator();
+            while (blobIterator.hasNext()) {
+                blobIterator.next().retardate(frametime);
+            }
+        }
+        for (BaseBlob baseBlob : baseBlobs) {
+            baseBlob.getBlob().retardate(frametime);
+        }
+
+        Iterator<Blob> avatarIterator = avatar.getBlobIterator();
+        while (avatarIterator.hasNext()) {
+            avatarIterator.next().retardate(frametime);
+        }
     }
 
     /*
@@ -75,6 +118,14 @@ public class AgarModel {
         }
     }
 
+    //Returns all newly created blobs not yet added to View. List gets wiped after call.
+    public ArrayList<Blob> getUnDrawnBlobs(){
+        ArrayList<Blob> result = new ArrayList<>();
+        result.addAll(unDrawnBlobs);
+        unDrawnBlobs = new ArrayList<>();
+        return result;
+    }
+
     private void spawnBaseBlobs () {
         int maxBaseBlobs = (int)(field.getHeight() * field.getWidth() / 10000);
         int radius = 5;
@@ -95,6 +146,7 @@ public class AgarModel {
         }
     }
 
+    //Does spawn Avatar
     private void spawnAvatar () {
         int radius = 10;
         avatar = new AdvBlob(generateSpawnPoint(radius), radius);
@@ -104,6 +156,7 @@ public class AgarModel {
         return field;
     }
 
+    //Provides an arrayList of Blobs to view to draw.
     public ArrayList<Blob> circlesToDraw () {
         ArrayList<Blob> result = new ArrayList<Blob>();
         for (BaseBlob bB : baseBlobs) {

@@ -40,13 +40,21 @@ public class BlobIterator implements Iterator<Blob> {
     @Override
     public void remove() {
         if (clusters.isEmpty()) return;
-        clusters.get(clusterIndex).remove(clusters.get(clusterIndex).get(blobIndex));
+        if (blobIndex <= 0) {
+            clusters.get(clusterIndex).remove(clusters.get(clusterIndex).get(0));
+        }else{
+            clusters.get(clusterIndex).remove(clusters.get(clusterIndex).get(blobIndex));
+        }
         blobIndex--;
         if (blobIndex < 0) {
             blobIndex = 0;
             clusterIndex--;
             if (clusterIndex < 0) {
-                clusters.remove(0);
+                if (clusters.get(0).isEmpty()) {
+                    clusters.remove(0);
+                }else{
+                    clusterIndex = 0;
+                }
             }
         }
     }

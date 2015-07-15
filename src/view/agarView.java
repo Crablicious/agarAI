@@ -22,6 +22,7 @@ public class AgarView {
     final JLabel msgLabel;
     ArrayList<Ball> balls;
     final JFrame frame;
+    private JComponent background;
 
     public AgarView(AgarModel model) {
         //initialize the View members:
@@ -44,9 +45,7 @@ public class AgarView {
                     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                     
                     frame.setLayout(null);
-                   //frame.setVisible(true);
-                    //frame.setBackground(Color.BLACK);
-                    JComponent background = new Background(Color.BLACK);
+                    background = new Background(Color.BLACK);
                     background.setOpaque(true);
                     background.setBorder(BorderFactory.createLineBorder(Color.WHITE));
                     background.setBounds(0, 0, WIDTH_PXL, HEIGHT_PXL);
@@ -58,28 +57,16 @@ public class AgarView {
                     msgLabel.setOpaque(false);
                     msgLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
-                    /*JComponent testB = new Background(Color.RED);
-                    testB.setOpaque(true);
-                    testB.setBounds(WIDTH_PXL / 2, HEIGHT_PXL / 2, 20, 20);*/
-
-                    /*JComponent circletest = new DrawCircle();
-                    circletest.setOpaque(true);
-                    circletest.setBounds(WIDTH_PXL/2, HEIGHT_PXL/2, 10, 10);*/
-
                     frame.getContentPane().add(msgLabel);
                     frame.getContentPane().setPreferredSize(new Dimension(WIDTH_PXL, HEIGHT_PXL));
 
                     ArrayList<Blob> circles = model.circlesToDraw();
-                    //System.out.println(circles);
-                    for (int i = 0; circles.size() > i; i++) {
+                    int i;
+                    for (i = 0; circles.size() > i; i++) {
                         Ball newBall = new Ball(circles.get(i));
-                        //System.out.println("Ball added");
-                        //System.out.println(circles.get(i));
                         balls.add(newBall);
                         frame.getContentPane().add(newBall.getJComponent());
                     }
-                    //frame.getContentPane().add(circletest);
-                    //frame.getContentPane().add(testB);
                     frame.getContentPane().add(background);
                     frame.pack();
                 }
@@ -122,6 +109,18 @@ public class AgarView {
                         msgLabel.setVisible(true);
                         msgLabel.setText(model.getMessage());
                     }
+
+                    //TODO: Adds newly created blobs. but doesn't work
+                    ArrayList<Blob> newBlobs = model.getUnDrawnBlobs();
+
+                    frame.getContentPane().remove(background);
+                    for (int i = 0; newBlobs.size() > i; i++) {
+                        Ball newBall = new Ball(newBlobs.get(i));
+                        balls.add(newBall);
+                        frame.getContentPane().add(newBall.getJComponent());
+                    }
+                    frame.getContentPane().add(background);
+
                     for (int i = 0; balls.size() > i; i++) {
                         if (balls.get(i).myBlob != null) {
                             if (model.circlesToDraw().contains(balls.get(i).myBlob)) {
@@ -133,6 +132,7 @@ public class AgarView {
                             }
                         }
                     }
+
                     frame.repaint();
                     Toolkit.getDefaultToolkit().sync();
                 }

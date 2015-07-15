@@ -17,6 +17,16 @@ public class AdvBlob{
             this.blobs.add(blob);
         }
 
+        public double getLargestRadius () {
+            double greatest = 0;
+            for (Blob blob : blobs) {
+                if (blob.getRadius() > greatest) {
+                    greatest = blob.getRadius();
+                }
+            }
+            return greatest;
+        }
+
         public void add(Blob blob) {
             blobs.add(blob);
         }
@@ -48,71 +58,135 @@ public class AdvBlob{
 	public AdvBlob(Point blobCenterPoint, int radius) {
         clusters = new ArrayList<Cluster>();
         clusters.add(new Cluster(new Blob(blobCenterPoint, radius)));
-        clusters.get(0).add(new Blob(new Point(blobCenterPoint.x+2*radius, blobCenterPoint.y+2*radius), radius));
+        clusters.get(0).add(new Blob(new Point(blobCenterPoint.x + 4 * radius, blobCenterPoint.y + 2 * radius), radius));
+        clusters.get(0).add(new Blob(new Point(blobCenterPoint.x + 8 * radius, blobCenterPoint.y + 2 * radius), radius));
+        //clusters.get(0).add(new Blob(new Point(blobCenterPoint.x+12*radius, blobCenterPoint.y+2*radius), radius));
         /*blobs.add(new Blob(blobCenterPoint, radius));
         blobs.add(new Blob(new Point(blobCenterPoint.x+2*radius, blobCenterPoint.y+2*radius), radius));*/
         updateMaxSpeed();
 	}
 
-    public void updateMaxSpeed() {
+    //Returns the shot baseblobs with the correct size and speed.
+    public ArrayList<BaseBlob> shoot(Set<Input> input) {
+        Iterator<Blob> blobIterator = this.getBlobIterator();
+        ArrayList<BaseBlob> shotBlobs = new ArrayList<>();
+        int xOffset;
+        int yOffset;
+        int magicOffset = 10;
+        while (blobIterator.hasNext()) {
+            xOffset = 0;
+            yOffset = 0;
+            Blob current = blobIterator.next();
+            if (current.getRadius() > 10){
+                Point start = new Point(current.getCenter().x, current.getCenter().y);
+                BaseBlob shotOne = new BaseBlob(start, 5);
+
+                //Offset and speed calc
+                if (input.contains(new Input(Input.Action.EAST))) {
+                    if (xOffset == 0){
+                        xOffset = (int)(current.getRadius() + shotOne.getBlob().getRadius() + magicOffset);
+                    }else {
+                        xOffset += (current.getRadius() + shotOne.getBlob().getRadius() + xOffset / Math.abs(xOffset) * magicOffset);
+                    }
+                    shotOne.getBlob().setxSpeed(shotOne.getBlob().getxSpeed() + 40);
+                }
+                if (input.contains(new Input(Input.Action.WEST))) {
+                    if (xOffset == 0) {
+                        xOffset = -(int)(current.getRadius() + shotOne.getBlob().getRadius() + magicOffset);
+                    }else {
+                        xOffset -= (current.getRadius() + shotOne.getBlob().getRadius() + xOffset / Math.abs(xOffset) * magicOffset);
+                    }
+                    shotOne.getBlob().setxSpeed(shotOne.getBlob().getxSpeed() - 40);
+                }
+                if (input.contains(new Input(Input.Action.NORTH))) {
+                    if (yOffset == 0){
+                        yOffset = -(int)(current.getRadius() + shotOne.getBlob().getRadius() + magicOffset);
+                    }else {
+                        yOffset -= (current.getRadius() + shotOne.getBlob().getRadius() + yOffset / Math.abs(yOffset) * magicOffset);
+                    }
+                    shotOne.getBlob().setySpeed(shotOne.getBlob().getySpeed() - 40);
+                }
+                if (input.contains(new Input(Input.Action.SOUTH))) {
+                    if (yOffset == 0) {
+                         yOffset = (int)(current.getRadius() + shotOne.getBlob().getRadius() + magicOffset);
+                    }
+                    yOffset += (current.getRadius() + shotOne.getBlob().getRadius() + yOffset / Math.abs(yOffset) * magicOffset);
+                    shotOne.getBlob().setySpeed(shotOne.getBlob().getySpeed() + 40);
+                }
+                shotOne.getBlob().getCenter().x += xOffset;
+                shotOne.getBlob().getCenter().y += yOffset;
+
+                shotBlobs.add(shotOne);
+
+                current.setArea(current.getArea() - shotOne.getBlob().getArea());
+            }
+        }
+        return shotBlobs;
+    }
+
+    public void updatePosition(Set<Input> input, long delta_t, int framerate, Dimension field) {
+        double frametime = delta_t/(1000/framerate);
+        //Retardation is now done for all blobs in AgarModel.
+        /*
         for (Cluster cluster : clusters) {
             for (Blob blob : cluster.blobs) {
-                blob.setMaxSpeed(10 - 0.001 * blob.getArea());
+                blob.setxSpeed(blob.getxSpeed() * 3 / 4 * frametime);
+                blob.setySpeed(blob.getySpeed() * 3 / 4 * frametime);
+            }
+        }
+        */
+        updateSpeed(input, frametime);
+        move(frametime, field);
+    }
+
+    //Returns true if "blob" is eaten. Callers responsibility to remove said blob.
+    public boolean collideAndEat(Blob blob){
+        for (Cluster cluster : clusters) {
+            for (Blob thisBlob : cluster.blobs) {
+                if (thisBlob.getCenter().distance(blob.getCenter()) < thisBlob.getRadius() + blob.getRadius()) {
+                    if ((thisBlob.getArea() / blob.getArea()) > (5 / 4)) {
+                        thisBlob.setRadius(Math.sqrt((blob.getArea() + thisBlob.getArea()) / Math.PI));
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public void removeBlob (Blob blob) {
+        Iterator<Cluster> clusterIterator = clusters.iterator();
+        while (clusterIterator.hasNext()) {
+            Cluster current = clusterIterator.next();
+            if (current.contains(blob)) {
+                current.remove(blob);
+                if (current.isEmpty()) clusterIterator.remove();
             }
         }
     }
 
-	public void updateSpeed(Set<Input> input, double frametime) {
-        //TODO: Add speed so they gather up. Give the small ones speed towards the largest ones in a cluster.
-        updateMaxSpeed();
-        //(0,0) top left corner
+    public Iterator<Blob>getBlobIterator (){
+        return new BlobIterator(clusters);
+    }
 
-        if (input != null) {
-            if (input.contains(new Input(Input.Dir.EAST))){
-                for (Cluster cluster : clusters) {
-                    for (Blob blob : cluster.blobs) {
-                        blob.setxSpeed(blob.getxSpeed() + blob.getMaxSpeed() / 10 * frametime);
-                    }
-                }
-            }
-            if (input.contains(new Input(Input.Dir.WEST))){
-                for (Cluster cluster : clusters) {
-                    for (Blob blob : cluster.blobs) {
-                        blob.setxSpeed(blob.getxSpeed() - blob.getMaxSpeed() / 10 * frametime);
-                    }
-                }
-            }
-            if (input.contains(new Input(Input.Dir.NORTH))){
-                for (Cluster cluster : clusters) {
-                    for (Blob blob : cluster.blobs) {
-                        blob.setySpeed(blob.getySpeed() - blob.getMaxSpeed() / 10 * frametime);
-                    }
-                }
-            }
-            if (input.contains(new Input(Input.Dir.SOUTH))){
-                for (Cluster cluster : clusters) {
-                    for (Blob blob : cluster.blobs) {
-                        blob.setySpeed(blob.getySpeed() + blob.getMaxSpeed() / 10 * frametime);
-                    }
-                }
-            }
-        }
-        //Speed can't be greater than maxSpeed
+    //Returns an arrayList of all blobs.
+    public ArrayList<Blob>getBlobs () {
+        ArrayList<Blob> resultBlobs = new ArrayList<Blob>();
         for (Cluster cluster : clusters) {
-            for (Blob blob : cluster.blobs) {
-                if (Math.abs(blob.getxSpeed()) > blob.getMaxSpeed()) {
-                    blob.setxSpeed(blob.getxSpeed() / Math.abs(blob.getxSpeed()) * blob.getMaxSpeed());
-                }
-                if (Math.abs(blob.getySpeed()) > blob.getMaxSpeed()) {
-                    blob.setySpeed(blob.getySpeed() / Math.abs(blob.getySpeed()) * blob.getMaxSpeed());
-                }
+            for (Blob blob : cluster.blobs){
+                resultBlobs.add(blob);
             }
         }
-	}
+        return resultBlobs;
+    }
+
+    public boolean isEmpty(){
+        return clusters.isEmpty();
+    }
 
     //TODO: Test how all blobs in one AdvBlob react when stuffed together.
-    /* Is responsible for boundaries */
-    public void move(double frametime, Dimension field) {
+    /* Is responsible for boundaries when moving*/
+    private void move(double frametime, Dimension field) {
         for (Cluster cluster : clusters) {
             for (Blob blob : cluster.blobs) {
                 blob.getCenter().x += (int) (blob.getxSpeed() * frametime);
@@ -133,17 +207,70 @@ public class AdvBlob{
                 //Collisiondetection for all "blobs" in AdvBlob after the move
                 for (Blob collisionBlob : cluster.blobs) {
                     if (collisionBlob != blob) {
-                        if ((blob.getRadius() < collisionBlob.getRadius()) && !blob.isClustered(collisionBlob)) {
+                        if ((blob.getRadius() < cluster.getLargestRadius()) && !blob.isClustered(collisionBlob)) {
                             Point collisionVector = getCollisionVector(blob, collisionBlob);
-
                             if (blob.collides(collisionBlob)) {
                                 blob.getCenter().translate(collisionVector.x, collisionVector.y);
                             }else { //Blob is away from collisionBlob.
                                 blob.getCenter().translate(-collisionVector.x, -collisionVector.y);
                             }
-
                         }
                     }
+                }
+            }
+        }
+    }
+
+    private void updateMaxSpeed() {
+        for (Cluster cluster : clusters) {
+            for (Blob blob : cluster.blobs) {
+                blob.setMaxSpeed();
+            }
+        }
+    }
+
+    private void updateSpeed(Set<Input> input, double frametime) {
+        updateMaxSpeed();
+        //(0,0) top left corner
+
+        if (input != null) {
+            if (input.contains(new Input(Input.Action.EAST))){
+                for (Cluster cluster : clusters) {
+                    for (Blob blob : cluster.blobs) {
+                        blob.setxSpeed(blob.getxSpeed() + blob.getMaxSpeed() / 10 * frametime);
+                    }
+                }
+            }
+            if (input.contains(new Input(Input.Action.WEST))){
+                for (Cluster cluster : clusters) {
+                    for (Blob blob : cluster.blobs) {
+                        blob.setxSpeed(blob.getxSpeed() - blob.getMaxSpeed() / 10 * frametime);
+                    }
+                }
+            }
+            if (input.contains(new Input(Input.Action.NORTH))){
+                for (Cluster cluster : clusters) {
+                    for (Blob blob : cluster.blobs) {
+                        blob.setySpeed(blob.getySpeed() - blob.getMaxSpeed() / 10 * frametime);
+                    }
+                }
+            }
+            if (input.contains(new Input(Input.Action.SOUTH))){
+                for (Cluster cluster : clusters) {
+                    for (Blob blob : cluster.blobs) {
+                        blob.setySpeed(blob.getySpeed() + blob.getMaxSpeed() / 10 * frametime);
+                    }
+                }
+            }
+        }
+        //Speed can't be greater than maxSpeed
+        for (Cluster cluster : clusters) {
+            for (Blob blob : cluster.blobs) {
+                if (Math.abs(blob.getxSpeed()) > blob.getMaxSpeed()) {
+                    blob.setxSpeed(blob.getxSpeed() / Math.abs(blob.getxSpeed()) * blob.getMaxSpeed());
+                }
+                if (Math.abs(blob.getySpeed()) > blob.getMaxSpeed()) {
+                    blob.setySpeed(blob.getySpeed() / Math.abs(blob.getySpeed()) * blob.getMaxSpeed());
                 }
             }
         }
@@ -184,62 +311,5 @@ public class AdvBlob{
         else if (!isPositive[0] && !isPositive[1]) quadrant = 3;
         else if (isPositive[0] && !isPositive[1]) quadrant = 4;
         return quadrant;
-    }
-
-    public void updatePosition(Set<Input> input, long delta_t, int framerate, Dimension field) {
-        double frametime = delta_t/(1000/framerate);
-        //Retardation
-        for (Cluster cluster : clusters) {
-            for (Blob blob : cluster.blobs) {
-                blob.setxSpeed(blob.getxSpeed() * 3 / 4 * frametime);
-                blob.setySpeed(blob.getySpeed() * 3 / 4 * frametime);
-            }
-        }
-        updateSpeed(input, frametime);
-        move(frametime, field);
-    }
-
-    //Returns true if "blob" is eaten. Callers responsibility to remove said blob.
-    public boolean collideAndEat(Blob blob){
-        for (Cluster cluster : clusters) {
-            for (Blob thisBlob : cluster.blobs) {
-                if (thisBlob.getCenter().distance(blob.getCenter()) < thisBlob.getRadius() + blob.getRadius()) {
-                    if ((thisBlob.getArea() / blob.getArea()) > (5 / 4)) {
-                        thisBlob.setRadius(Math.sqrt((blob.getArea() + thisBlob.getArea()) / Math.PI));
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-    public void removeBlob (Blob blob) {
-        Iterator<Cluster> clusterIterator = clusters.iterator();
-        while (clusterIterator.hasNext()) {
-            Cluster current = clusterIterator.next();
-            if (current.contains(blob)) {
-                current.remove(blob);
-                if (current.isEmpty()) clusterIterator.remove();
-            }
-        }
-    }
-
-    public Iterator<Blob>getBlobIterator (){
-        return new BlobIterator(clusters);
-    }
-
-    public ArrayList<Blob>getBlobs () {
-        ArrayList<Blob> resultBlobs = new ArrayList<Blob>();
-        for (Cluster cluster : clusters) {
-            for (Blob blob : cluster.blobs){
-                resultBlobs.add(blob);
-            }
-        }
-        return resultBlobs;
-    }
-
-    public boolean isEmpty(){
-        return clusters.isEmpty();
     }
 }

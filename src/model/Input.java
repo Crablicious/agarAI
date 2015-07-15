@@ -4,17 +4,17 @@ package model;
  * Created by Adam on 2015-06-26.
  */
 public class Input {
-    public enum Dir { WEST, EAST, NORTH, SOUTH };
-    final public Dir dir;
+    public enum Action { WEST, EAST, NORTH, SOUTH, SHOOT, SPLIT };
+    final public Action action;
 
-    public Input(Dir dir) {
-        this.dir = dir;
+    public Input(Action action) {
+        this.action = action;
     }
 
     public boolean equals(Object o) {
         if (o instanceof Input) {
             Input input = (Input) o;
-            if (this.dir == input.dir) {
+            if (this.action == input.action) {
                 return true;
             }
         }
@@ -23,6 +23,6 @@ public class Input {
 
     @Override
     public int hashCode() {
-        return dir != null ? dir.hashCode() : 0;
+        return action != null ? action.hashCode() : 0;
     }
 }
