@@ -48,6 +48,7 @@ public class AdvBlob{
 	public AdvBlob(Point blobCenterPoint, int radius) {
         clusters = new ArrayList<Cluster>();
         clusters.add(new Cluster(new Blob(blobCenterPoint, radius)));
+        clusters.get(0).add(new Blob(new Point(blobCenterPoint.x+2*radius, blobCenterPoint.y+2*radius), radius));
         /*blobs.add(new Blob(blobCenterPoint, radius));
         blobs.add(new Blob(new Point(blobCenterPoint.x+2*radius, blobCenterPoint.y+2*radius), radius));*/
         updateMaxSpeed();
@@ -96,7 +97,6 @@ public class AdvBlob{
                 }
             }
         }
-
         //Speed can't be greater than maxSpeed
         for (Cluster cluster : clusters) {
             for (Blob blob : cluster.blobs) {
@@ -133,9 +133,15 @@ public class AdvBlob{
                 //Collisiondetection for all "blobs" in AdvBlob after the move
                 for (Blob collisionBlob : cluster.blobs) {
                     if (collisionBlob != blob) {
-                        if (blob.collides(collisionBlob)) {
+                        if ((blob.getRadius() < collisionBlob.getRadius()) && !blob.isClustered(collisionBlob)) {
                             Point collisionVector = getCollisionVector(blob, collisionBlob);
-                            blob.getCenter().translate(collisionVector.x, collisionVector.y);
+
+                            if (blob.collides(collisionBlob)) {
+                                blob.getCenter().translate(collisionVector.x, collisionVector.y);
+                            }else { //Blob is away from collisionBlob.
+                                blob.getCenter().translate(-collisionVector.x, -collisionVector.y);
+                            }
+
                         }
                     }
                 }
@@ -143,7 +149,7 @@ public class AdvBlob{
         }
     }
 
-    //Returns a vector that subBlob is supposed to move. Everything is from domBlob's perspective.
+    //Returns a vector that subBlob is supposed to move to get close to domBlob. Everything is from domBlob's perspective.
     //blob = subBlob, collisionBlob = domBlob.
     private Point getCollisionVector(Blob subBlob, Blob domBlob) {
         int quadrant = findQuadrant(subBlob.getCenter(), domBlob.getCenter());

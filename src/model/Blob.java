@@ -69,12 +69,20 @@ public class Blob {
         return false;
     }
 
-    //TODO: Make this work for an array of circles vs an array of circles.
     public boolean collides(Blob blob) {
         if (this.getCenter().distance(blob.getCenter()) < this.getRadius()+ blob.getRadius()) {
             return true;
         }
         return false;
+    }
+
+    //Magic number is the amount of relative distance allowed between blobs in a cluster
+    public boolean isClustered (Blob blob) {
+        int magicNumber = 1;
+        if  (Math.abs(this.getCenter().distance(blob.getCenter())-(this.getRadius() + blob.getRadius())) > magicNumber) {
+            return false;
+        }
+        return true;
     }
 
     public boolean eatBlob(Blob toBeEaten){
@@ -89,5 +97,3 @@ public class Blob {
         return circle.getCenter().toString() + circle.getRadius();
     }
 }
-
-//TODO: Make all circles of the same blob go together and join up.

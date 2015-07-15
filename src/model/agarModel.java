@@ -16,7 +16,7 @@ public class AgarModel {
     private int framerate;
 
     public AgarModel(int framerate) {
-        this.field = new Dimension(1024, 768);
+        this.field = new Dimension(800, 600);
         this.framerate = framerate;
         baseBlobs = new ArrayList<BaseBlob>();
         advBlobs = new ArrayList<AdvBlob>();
@@ -76,7 +76,6 @@ public class AgarModel {
     }
 
     private void spawnBaseBlobs () {
-        //TODO: Revert this
         int maxBaseBlobs = (int)(field.getHeight() * field.getWidth() / 10000);
         int radius = 5;
         for (int i = 0; maxBaseBlobs > i; i++) {
@@ -157,11 +156,5 @@ public class AgarModel {
     public String getMessage() {
         if (avatar == null) return "";
         return "Testing bitch";
-        /*return Double.toString((int)avatar.getBlobs().get(0).getCenter().distance(baseBlobs.get(0).getBlob().getCenter()))
-                + " Sum of radius: " +
-                (avatar.getBlobs().get(0).getRadius()+baseBlobs.get(0).getBlob().getRadius());
-        */
     }
 }
-
-//TODO: Removing while iterating over something. Not legally removing.

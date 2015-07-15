@@ -13,6 +13,7 @@ public class BlobIterator implements Iterator<Blob> {
 
     public BlobIterator(ArrayList<AdvBlob.Cluster> clusters) {
         this.clusters = clusters;
+        //Initiated to -1 since "next" method will provide blobIndex+1 = 0.
         blobIndex = -1;
         clusterIndex = 0;
     }
